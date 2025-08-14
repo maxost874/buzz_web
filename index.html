@@ -90,3 +90,28 @@ $("go").onclick=predict;
 </script>
 </body>
 </html>
+
+
+
+
+<script>
+async function predict() {
+    const text = document.getElementById("postText").value;
+    const response = await fetch("https://buzz-api-bbtg.onrender.com/predict", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text })
+    });
+    const data = await response.json();
+    
+    // מציג תוצאה בסיסית
+    alert(`Prediction: ${data.prediction}, Probability: ${data.probability}, Sentiment: ${JSON.stringify(data.sentiment)}`);
+
+    // כאן נוכל להוסיף יצירת גרפים
+}
+</script>
+
+<textarea id="postText" rows="5" cols="60"></textarea>
+<button onclick="predict()">Predict</button>
+
+
