@@ -93,25 +93,91 @@ $("go").onclick=predict;
 
 
 
-
 <script>
-async function predict() {
-    const text = document.getElementById("postText").value;
-    const response = await fetch("https://buzz-api-bbtg.onrender.com/predict", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text })
-    });
-    const data = await response.json();
-    
-    // מציג תוצאה בסיסית
-    alert(`Prediction: ${data.prediction}, Probability: ${data.probability}, Sentiment: ${JSON.stringify(data.sentiment)}`);
+let probChart, sentChart, compChart;
+const $ = id => document.getElementById(id);
+$("back").href = DASHBOARD_URL;
 
-    // כאן נוכל להוסיף יצירת גרפים
+function setPill(el, kind){ el.className = "pill " + (kind==="ok"?"ok":kind==="bad"?"bad":"muted"); }
+
+async function wakeApi(){
+  // מעיר את השרת ומזהה שגיאות CORS / רשת
+  try{
+    const r = await fetch(`${API_BASE}/health`, { method:"GET", mode:"cors" });
+    if(!r.ok) throw new Error(await r.text());
+    return true;
+  }catch(e){
+    alert("Health check failed: " + e.message);
+    return false;
+  }
 }
+
+async function predict(){
+  const t = $("txt").value.trim();
+  if(!t){ alert("הכנס טקסט"); return; }
+  const btn = $("go");
+  btn.disabled = true; btn.textContent = "...Predicting";
+  try{
+    // קודם נקיש על /health כדי "להעיר" את Render ולגלות בעיות רשת/https
+    const ok = await wakeApi();
+    if(!ok) throw new Error("API health failed");
+
+    const r = await fetch(`${API_BASE}/predict`, {
+      method:"POST",
+      mode:"cors",
+      headers:{ "Content-Type":"application/json" },
+      body: JSON.stringify({ text: t })
+    });
+    if(!r.ok) throw new Error(await r.text());
+    const d = await r.json();
+
+    const isBuzz = Number(d.prediction) === 1;
+    const p = Number(d.probability) || 0;
+    const s = d.sentiment || {pos:0,neu:0,neg:0,compound:0};
+
+    $("pred").textContent = isBuzz ? "Buzz" : "No Buzz";
+    setPill($("predPill"), isBuzz ? "ok" : "bad");
+    $("predPill").textContent = isBuzz ? "High potential" : "Low potential";
+    $("prob").textContent = (p*100).toFixed(2) + "%";
+
+    const top = Object.entries({Positive:s.pos, Neutral:s.neu, Negative:s.neg})
+                      .sort((a,b)=>b[1]-a[1])[0][0];
+    $("sent").textContent = top;
+    setPill($("sent"), top==="Positive" ? "ok" : top==="Negative" ? "bad" : "muted");
+
+    // גרפים (Chart.js)
+    const ctx1 = $("probChart").getContext("2d");
+    if (probChart) probChart.destroy();
+    probChart = new Chart(ctx1, {
+      type:"doughnut",
+      data:{ labels:["Success","Other"], datasets:[{ data:[p, Math.max(0,1-p)] }] },
+      options:{ plugins:{ legend:{ display:false } }, cutout:"70%" }
+    });
+
+    const ctx2 = $("sentChart").getContext("2d");
+    if (sentChart) sentChart.destroy();
+    sentChart = new Chart(ctx2, {
+      type:"bar",
+      data:{ labels:["Positive","Neutral","Negative"], datasets:[{ data:[s.pos||0,s.neu||0,s.neg||0] }] },
+      options:{ plugins:{ legend:{ display:false } }, scales:{ y:{ suggestedMax:1 } } }
+    });
+
+    const ctx3 = $("compChart").getContext("2d");
+    if (compChart) compChart.destroy();
+    compChart = new Chart(ctx3, {
+      type:"bar",
+      data:{ labels:["Compound (-1..1)"], datasets:[{ data:[(s.compound+1)/2] }] },
+      options:{ plugins:{ legend:{ display:false } }, scales:{ y:{ suggestedMax:1 } } }
+    });
+
+    $("results").style.display = "grid";
+  }catch(e){
+    alert("Request failed: " + (e.message || e));
+  }finally{
+    btn.disabled = false; btn.textContent = "Predict";
+  }
+}
+
+// לחיצה על כפתור Predict
+$("go").onclick = predict;
 </script>
-
-<textarea id="postText" rows="5" cols="60"></textarea>
-<button onclick="predict()">Predict</button>
-
-
