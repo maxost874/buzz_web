@@ -100,16 +100,18 @@ $("back").href = DASHBOARD_URL;
 
 function setPill(el, kind){ el.className = "pill " + (kind==="ok"?"ok":kind==="bad"?"bad":"muted"); }
 
-async function wakeApi(){
-  // מעיר את השרת ומזהה שגיאות CORS / רשת
-  try{
-    const r = await fetch(`${API_BASE}/health`, { method:"GET", mode:"cors" });
-    if(!r.ok) throw new Error(await r.text());
-    return true;
-  }catch(e){
-    alert("Health check failed: " + e.message);
-    return false;
+async function sleep(ms){ return new Promise(r=>setTimeout(r, ms)); }
+
+async function wakeApi(maxTries=5){
+  for (let i=1; i<=maxTries; i++){
+    try{
+      const r = await fetch(`${API_BASE}/health`, { method:"GET", mode:"cors" });
+      if (r.ok) return true;
+    }catch(e){}
+    // המתנה מדורגת: 1s, 2s, 3s, 4s...
+    await sleep(i * 1000);
   }
+  return false;
 }
 
 async function predict(){
@@ -181,3 +183,4 @@ async function predict(){
 // לחיצה על כפתור Predict
 $("go").onclick = predict;
 </script>
+
