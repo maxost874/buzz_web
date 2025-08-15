@@ -9,50 +9,132 @@
   const DASHBOARD_URL = "https://app.powerbi.com/groups/<workspace-id>/reports/<report-id>/ReportSection?pageName=<page-id>";
 </script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 <style>
-  :root { --brand:#2F5597; --bg:#f6f8fa; --ok:#2E7D32; --bad:#C62828; --muted:#616161; }
-  body{font-family:system-ui,Segoe UI,Roboto;max-width:900px;margin:24px auto;padding:0 16px;background:var(--bg)}
-  h1{margin:0 0 8px} .caption{color:#475569;margin-bottom:16px}
+  /* צבעים */
+  :root{
+    --bg-outer:#bfe0b6;      /* רקע ירוק בהיר מסביב */
+    --panel:#f3fbf2;         /* פנים הלוח */
+    --frame:#2e5d2e;         /* מסגרת ירוקה כהה */
+    --headline:#0b6623;      /* פס כותרת כהה */
+    --brand:#2F5597;
+    --ok:#2E7D32; --bad:#C62828; --muted:#616161;
+  }
+
+  /* רקע מסך עם “כרית” */
+  html,body{height:100%}
+  body{
+    margin:0; padding:28px;
+    background: radial-gradient(ellipse at center, var(--bg-outer) 0%, #cde9c7 100%);
+    font-family: system-ui, -apple-system, Segoe UI, Roboto;
+    color:#0f172a;
+    display:flex; align-items:center; justify-content:center;
+  }
+
+  /* לוח מרכזי + מסגרת */
+  .frame{
+    width:min(1180px, 96vw);
+    background:var(--bg-outer);
+    border-radius:18px;
+    box-shadow:0 16px 40px rgba(0,0,0,.18);
+    padding:14px;
+  }
+  .panel{
+    background:var(--panel);
+    border:4px solid var(--frame);
+    border-radius:14px;
+    padding:18px 18px 26px;
+  }
+
+  /* פס כותרת כמו “Create a New Post” */
+  .header{
+    position:relative;
+    background:var(--headline);
+    border:2px solid #0a0a0a;
+    color:#fff;
+    font-weight:800;
+    font-size:clamp(20px, 2.6vw, 34px);
+    text-align:center;
+    padding:16px 60px;
+    border-radius:6px;
+  }
+  .header .left, .header .right{
+    position:absolute; top:50%; transform:translateY(-50%);
+    width:42px; height:42px; object-fit:contain;
+  }
+  .header .left{ right:auto; left:14px; }
+  .header .right{ left:auto; right:14px; }
+
+  .subline{
+    margin:14px 0 10px;
+    padding-bottom:8px;
+    border-bottom:4px solid var(--frame);
+    color:#2f4f2f;
+    text-align:center;
+    font-size:16px;
+  }
+
+  /* כרטיסים, טקסט, כפתורים */
   .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px}
   .card{background:#fff;border-radius:12px;padding:16px;box-shadow:0 2px 10px rgba(0,0,0,.06)}
-  textarea{width:100%;height:140px;padding:10px;border-radius:10px;border:1px solid #d0d7de}
-  button,.btn{padding:10px 16px;border:0;border-radius:10px;background:var(--brand);color:#fff;font-weight:700;cursor:pointer}
+  textarea{width:100%;height:140px;padding:10px;border-radius:10px;border:1px solid #d0d7de;background:#fff}
   .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:space-between}
+  .btn,button{
+    padding:10px 16px;border:0;border-radius:10px;background:var(--brand);color:#fff;
+    font-weight:700;cursor:pointer; box-shadow:0 2px 8px rgba(0,0,0,.12)
+  }
+  .btn.ghost{background:#e2e8f0;color:#111}
+
   .pill{padding:6px 10px;border-radius:999px;font-weight:700;background:#eee}
-  .pill.ok{color:var(--ok);background:#e8f5e9}.pill.bad{color:var(--bad);background:#fdecec}.pill.muted{color:var(--muted);background:#f3f4f6}
+  .pill.ok{color:var(--ok);background:#e8f5e9}
+  .pill.bad{color:var(--bad);background:#fdecec}
+  .pill.muted{color:var(--muted);background:#f3f4f6}
 </style>
 </head>
 <body>
-  <h1>Buzz Predictor — Live</h1>
-  <div class="caption">הדבק טקסט, לחץ Predict, קבל חיזוי + גרפים. בסוף חזור לדשבורד.</div>
 
-  <div class="card">
-    <label>טקסט הפוסט</label>
-    <textarea id="txt" placeholder="This post will explode today!"></textarea>
-    <div class="row" style="margin-top:10px">
-      <button id="go">Predict</button>
-      <a class="btn" style="background:#e2e8f0;color:#111" id="back" href="#">← Back to Dashboard</a>
-    </div>
-  </div>
+  <!-- מסגרת ירוקה חיצונית -->
+  <div class="frame">
+    <div class="panel">
+      <!-- פס כותרת + אייקונים -->
+      <div class="header">
+        <img class="left"  src="./reddit.png" alt="reddit">
+        Buzz Predictor — Live
+        <img class="right" src="./buzz.png"   alt="buzz">
+      </div>
+      <div class="subline">Fill in the details, analyze your content, and predict the buzz</div>
 
-  <div class="grid" id="results" style="display:none">
-    <div class="card">
-      <div><strong>Prediction:</strong> <span id="pred">–</span> <span id="predPill" class="pill muted">–</span></div>
-      <div style="margin-top:8px"><strong>Probability:</strong> <span id="prob">–</span></div>
-      <div style="margin-top:8px"><strong>Sentiment:</strong> <span id="sent" class="pill muted">–</span></div>
+      <!-- טקסט + כפתורים -->
+      <div class="card" style="margin-top:10px">
+        <label style="display:block;margin-bottom:6px">טקסט הפוסט</label>
+        <textarea id="txt" placeholder="This post will explode today!"></textarea>
+        <div class="row" style="margin-top:10px">
+          <a class="btn ghost" id="back" href="#">← Back to Dashboard</a>
+          <button id="go">Predict</button>
+        </div>
+      </div>
+
+      <!-- אזור תוצאות -->
+      <div class="grid" id="results" style="display:none; margin-top:14px">
+        <div class="card">
+          <div><strong>Prediction:</strong> <span id="pred">–</span> <span id="predPill" class="pill muted">–</span></div>
+          <div style="margin-top:8px"><strong>Probability:</strong> <span id="prob">–</span></div>
+          <div style="margin-top:8px"><strong>Sentiment:</strong> <span id="sent" class="pill muted">–</span></div>
+        </div>
+        <div class="card"><div><strong>Success Probability</strong></div><canvas id="probChart" height="220"></canvas></div>
+        <div class="card"><div><strong>Sentiment Breakdown</strong></div><canvas id="sentChart" height="220"></canvas></div>
+        <div class="card"><div><strong>Polarity (compound)</strong></div><canvas id="compChart" height="220"></canvas></div>
+      </div>
     </div>
-    <div class="card"><div><strong>Success Probability</strong></div><canvas id="probChart" height="220"></canvas></div>
-    <div class="card"><div><strong>Sentiment Breakdown</strong></div><canvas id="sentChart" height="220"></canvas></div>
-    <div class="card"><div><strong>Polarity (compound)</strong></div><canvas id="compChart" height="220"></canvas></div>
   </div>
 
 <script>
-/* === JS אחד בלבד — בלי כפילויות === */
+/* ======= JS ======= */
 let probChart, sentChart, compChart;
 const $ = id => document.getElementById(id);
 $("back").href = DASHBOARD_URL;
 
-function setPill(el,k){ el.className="pill "+(k==="ok"?"ok":k==="bad"?"bad":"muted"); }
+function setPill(el,k){ el.className="pill "+(k==="ok"?"ok":"bad") }
 
 async function sleep(ms){ return new Promise(r=>setTimeout(r, ms)); }
 async function wakeApi(maxTries=6){
@@ -72,13 +154,12 @@ async function predict(){
 
   const btn=$("go"); btn.disabled=true; btn.textContent="...Predicting";
   try{
-    const ok = await wakeApi();               // מעיר את Render אם ישן
+    const ok = await wakeApi();
     if(!ok) throw new Error("API not responding (health).");
 
-    // ←← שימוש ב-GET כדי להימנע מ-preflight/CORS
+    // GET ללא preflight (עוקף CORS)
     const r = await fetch(`${API_BASE}/predict_qs?text=${encodeURIComponent(t)}`, {
-      method:"GET",
-      mode:"cors"
+      method:"GET", mode:"cors"
     });
     if(!r.ok) throw new Error(await r.text());
     const d = await r.json();
@@ -92,21 +173,18 @@ async function predict(){
     $("predPill").textContent = isBuzz ? "High potential" : "Low potential";
     $("prob").textContent = (p*100).toFixed(2)+"%";
 
-    const top = Object.entries({Positive:s.pos, Neutral:s.neu, Negative:s.neg})
-                      .sort((a,b)=>b[1]-a[1])[0][0];
-    $("sent").textContent = top; setPill($("sent"), top==="Positive"?"ok":top==="Negative"?"bad":"muted");
+    const top = Object.entries({Positive:s.pos, Neutral:s.neu, Negative:s.neg}).sort((a,b)=>b[1]-a[1])[0][0];
+    $("sent").textContent = top;
+    $("sent").className = "pill " + (top==="Positive"?"ok":top==="Negative"?"bad":"muted");
 
     // גרפים
-    const ctx1=$("probChart").getContext("2d");
-    if(probChart) probChart.destroy();
+    const ctx1=$("probChart").getContext("2d"); if(probChart) probChart.destroy();
     probChart=new Chart(ctx1,{type:"doughnut",data:{labels:["Success","Other"],datasets:[{data:[p,Math.max(0,1-p)]}]},options:{plugins:{legend:{display:false}},cutout:"70%"}});
 
-    const ctx2=$("sentChart").getContext("2d");
-    if(sentChart) sentChart.destroy();
+    const ctx2=$("sentChart").getContext("2d"); if(sentChart) sentChart.destroy();
     sentChart=new Chart(ctx2,{type:"bar",data:{labels:["Positive","Neutral","Negative"],datasets:[{data:[s.pos||0,s.neu||0,s.neg||0]}]},options:{plugins:{legend:{display:false}},scales:{y:{suggestedMax:1}}}});
 
-    const ctx3=$("compChart").getContext("2d");
-    if(compChart) compChart.destroy();
+    const ctx3=$("compChart").getContext("2d"); if(compChart) compChart.destroy();
     compChart=new Chart(ctx3,{type:"bar",data:{labels:["Compound (-1..1)"],datasets:[{data:[(s.compound+1)/2]}]},options:{plugins:{legend:{display:false}},scales:{y:{suggestedMax:1}}}});
 
     $("results").style.display="grid";
