@@ -193,6 +193,22 @@
     direction: ltr;
   }
 
+    /* כרטיסי גרפים קבועים בגובה */
+  .card.chart{
+    min-height: 320px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+  
+  /* הקנבסים עצמם – רוחב מלא + גובה קבוע */
+  .card.chart canvas{
+    display: block;
+    width: 100% !important;
+    height: 260px !important;  /* שנה ל-240/280 אם תרצה */
+  }
+
+
 
   /* Progress */
   .progress{ height:10px; background:#ecf2ec; border-radius:999px; overflow:hidden; }
@@ -249,9 +265,16 @@
         </div>
       </div>
 
+        <div class="card chart">
+          <div><strong>Success Probability</strong></div>
+          <canvas id="probChart"></canvas>
+        </div>
+        
+        <div class="card chart">
+          <div><strong>Sentiment Breakdown</strong></div>
+          <canvas id="sentChart"></canvas>
+        </div>
 
-        <div class="card"><div><strong>Success Probability</strong></div><canvas id="probChart" height="220"></canvas></div>
-        <div class="card"><div><strong>Sentiment Breakdown</strong></div><canvas id="sentChart" height="220"></canvas></div>
          <div class="card metric-card" id="accCard">
             <div class="metric-title">Model Accuracy</div>
             <div class="metric-value" id="accValue">70%</div>
@@ -355,19 +378,33 @@ async function predict(){
         labels: ["Success", "Other"],
         datasets: [{ data: [p, 1 - p], backgroundColor: ["#22c55e", "#f87171"] }]
       },
-      options: { plugins: { legend: { display:false } }, cutout: "70%" },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,    // חשוב: שיתאים לגובה ה-CSS
+        plugins: { legend: { display:false } },
+        cutout: "70%",
+        layout: { padding: 8 }         // קצת מרווח פנימי
+      },
       plugins: [centerTextPlugin((p*100).toFixed(2) + "%")]
     });
 
+
     const ctx2=$("sentChart").getContext("2d"); if(sentChart) sentChart.destroy();
     sentChart = new Chart(ctx2, {
-      type:"bar",
-      data:{ labels:["Positive","Neutral","Negative"], datasets:[{ data:[sNorm.pos, sNorm.neu, sNorm.neg] }] },
+      type: "bar",
+      data: {
+        labels:["Positive","Neutral","Negative"],
+        datasets:[{ data:[sNorm.pos, sNorm.neu, sNorm.neg] }]
+      },
       options:{
+        responsive: true,
+        maintainAspectRatio: false,    // חשוב: שיתאים לגובה ה-CSS
         plugins:{ legend:{ display:false } },
-        scales:{ y:{ min:0, max:1 } }
+        scales:{ y:{ min:0, max:1 } },
+        layout: { padding: 8 }
       }
     });
+
 
 const ACC = 0.70;
 document.getElementById("accValue").textContent = `${(ACC*100).toFixed(0)}%`;
@@ -384,6 +421,7 @@ $("go").onclick=predict;
 </script>
 </body>
 </html>
+
 
 
 
