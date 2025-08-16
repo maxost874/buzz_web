@@ -89,17 +89,16 @@
   .card{background:#fff; border-radius:12px; padding:18px; box-shadow:0 2px 10px rgba(0,0,0,.06)}
 
    textarea{
-    width:100%;
-    height:140px;
-    padding:10px;
-    border-radius:10px;
-    border:1px solid #d0d7de;
-    background:#fff;
+      width: 95%;
+      max-width: 95%;
+      margin: 10px auto;
+      display: block;
+      box-sizing: border-box;
 
-    /* השינויים הרלוונטיים */
-    direction: ltr;        /* כיוון כתיבה משמאל לימין */
-    text-align: left;      /* יישור לשמאל */
-    unicode-bidi: plaintext; /* עוזר במיקס של עברית/אנגלית */
+      /* השינויים הרלוונטיים */
+      direction: ltr;
+      text-align: left;
+      unicode-bidi: plaintext;
   }
 
   .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:space-between}
@@ -109,7 +108,7 @@
   }
   .btn.ghost{background:#e2e8f0;color:#111}
 
-    /* Back button */
+  /* Back button */
   .back-btn{
     display:inline-flex;
     align-items:center;
@@ -130,19 +129,38 @@
   .back-btn .arrow{ line-height:1 }
 
   /* כיוון החץ לפי כיוון הדף */
-  [dir="rtl"] .back-btn .arrow::before{ content:"\2192"; } /* → ב-RTL */
-  [dir="ltr"] .back-btn .arrow::before{ content:"\2190"; } /* ← ב-LTR */
+  [dir="rtl"] .back-btn .arrow::before{ content:"\2190"; } /* ← ב-RTL */
+  [dir="ltr"] .back-btn .arrow::before{ content:"\2192"; } /* → ב-LTR */
 
   .pill{padding:6px 10px;border-radius:999px;font-weight:700;background:#eee}
   .pill.ok{color:var(--ok);background:#e8f5e9}
   .pill.bad{color:var(--bad);background:#fdecec}
   .pill.muted{color:var(--muted);background:#f3f4f6}
 
-    /* כרטיס KPI מסודר */
+  /* כרטיס KPI מסודר */
   .kpi-card{ display:grid; gap:12px; }
-  .kpi-row{ display:flex; align-items:center; justify-content:space-between; gap:12px; }
-  .kpi-label{ font-weight:800; color:#16351a; }
-  .kpi-value{ font-weight:700; }
+  .kpi-row{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+    /* חדש: שהשורה תהיה משמאל לימין */
+    direction:ltr;
+    text-align:left;
+  }
+  .kpi-label{
+    font-weight:800;
+    color:#16351a;
+    /* חדש: התווית נשארת מיושרת לימין כדי שהכיתוב יהיה בצד ימין */
+    direction:rtl;
+    text-align:right;
+  }
+  .kpi-value{
+    font-weight:700;
+    /* חדש: הערך עצמו תמיד LTR */
+    direction:ltr;
+    text-align:left;
+  }
 
   /* סרגל התקדמות לאחוז ההצלחה */
   .progress{ height:10px; background:#ecf2ec; border-radius:999px; overflow:hidden; }
@@ -155,12 +173,10 @@
   .pill.sm{ padding:4px 8px; font-weight:800; }
 
   .kpi-row .kpi-value{
-  display:flex;
-  align-items:center;
-  gap:8px;
-}
-
-  
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
 </style>
 </head>
 <body>
@@ -177,53 +193,55 @@
       <div class="subline">Fill in the details, analyze your content, and predict the buzz</div>
 
       <!-- טקסט + כפתורים -->
-
       <div class="card" style="margin-top:10px">
         <label for="txt" class="post-label">Post Text</label>
         <textarea id="txt" placeholder="Example: This post will explode today!"></textarea>
-      <div class="row" style="margin-top:10px">
+        <div class="row" style="margin-top:10px">
 
-         <a class="back-btn" id="back" href="#">
-           <span>Back to Dashboard</span><i class="arrow"></i>
-         </a>
+          <a class="back-btn" id="back" href="#">
+            <span>Back to Dashboard</span><i class="arrow"></i>
+          </a>
 
           <button id="go">Predict</button>
         </div>
       </div>
 
       <!-- אזור תוצאות -->
-      <div class="grid" id="results" style="display:none; margin-top:14px">
-      <div class="card kpi-card">
-        <div class="kpi-row">
-        <div class="kpi-label">Prediction:</div>
-        <div class="kpi-value">
-        <span id="pred">–</span>
-        <span id="predPill" class="pill sm muted" style="margin-inline-start:8px">–</span>
-      </div>
-    </div>
+      <div class="grid" id="results" style="display:none; margin-top:14px" aria-live="polite">
+        <div class="card kpi-card">
+          <div class="kpi-row">
+            <div class="kpi-label">Prediction:</div>
+            <div class="kpi-value">
+              <span id="pred">–</span>
+              <span id="predPill" class="pill sm muted" style="margin-inline-start:8px">–</span>
+            </div>
+          </div>
 
-  <div class="kpi-row">
-    <div class="kpi-label">Probability:</div>
-    <div class="kpi-value"><span id="prob">–</span></div>
-  </div>
-  <div class="progress"><div id="probFill" class="progress-fill"></div></div>
+          <div class="kpi-row">
+            <div class="kpi-label">Probability:</div>
+            <div class="kpi-value"><span id="prob">–</span></div>
+          </div>
+          <div class="progress"><div id="probFill" class="progress-fill"></div></div>
 
-  <div class="kpi-row">
-    <div class="kpi-label">Sentiment:</div>
-    <div class="kpi-value"><span id="sent" class="pill sm muted">–</span></div>
-  </div>
-</div>
+          <div class="kpi-row">
+            <div class="kpi-label">Sentiment:</div>
+            <div class="kpi-value"><span id="sent" class="pill sm muted">–</span></div>
+          </div>
+        </div>
 
         <div class="card"><div><strong>Success Probability</strong></div><canvas id="probChart" height="220"></canvas></div>
         <div class="card"><div><strong>Sentiment Breakdown</strong></div><canvas id="sentChart" height="220"></canvas></div>
-        <div class="card"><div><strong>Polarity (compound)</strong></div><canvas id="compChart" height="220"></canvas></div>
+        <div class="card">
+          <div><strong>Model Accuracy</strong></div>
+          <canvas id="accuracyChart" height="220"></canvas>
+        </div>
       </div>
     </div>
   </div>
 
 <script>
 /* ======= JS ======= */
-let probChart, sentChart, compChart;
+let probChart, sentChart;
 const $ = id => document.getElementById(id);
 $("back").href = DASHBOARD_URL;
 
@@ -241,6 +259,26 @@ async function wakeApi(maxTries=6){
   return false;
 }
 
+// פורמט נוח לאחוזים (נשאר לשימוש עתידי)
+function pct(v){ return (Math.max(0, Math.min(1, Number(v))) * 100).toFixed(2) + "%"; }
+
+// פלאגין שמצייר טקסט במרכז הדונאט עם ID ייחודי כדי למנוע אזהרות כפילות
+function centerTextPlugin(text, id = "centerText_" + Math.random().toString(36).slice(2)){
+  return {
+    id,
+    afterDraw(chart){
+      const {ctx, chartArea:{left, right, top, bottom}} = chart;
+      ctx.save();
+      ctx.font = "700 18px system-ui";
+      ctx.fillStyle = "#0f172a";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText(text, (left+right)/2, (top+bottom)/2);
+      ctx.restore();
+    }
+  };
+}
+
 async function predict(){
   const t = $("txt").value.trim();
   if(!t){ alert("הכנס טקסט"); return; }
@@ -254,12 +292,24 @@ async function predict(){
     const r = await fetch(`${API_BASE}/predict_qs?text=${encodeURIComponent(t)}`, {
       method:"GET", mode:"cors"
     });
-    if(!r.ok) throw new Error(await r.text());
+    if(!r.ok){
+      const text = await r.text().catch(()=> "");
+      throw new Error(`HTTP ${r.status} – ${text || "Request failed"}`);
+    }
     const d = await r.json();
 
     const isBuzz = Number(d.prediction)===1;
-    const p = Number(d.probability)||0;
-    const s = d.sentiment||{pos:0,neu:0,neg:0,compound:0};
+    const pRaw = Number(d.probability);
+    const p = (isFinite(pRaw) ? pRaw : 0);
+    const s = d.sentiment || {pos:0,neu:0,neg:0,compound:0};
+
+    // נרמול סנטימנט למניעת ערכים לא חוקיים
+    const sNorm = {
+      pos: Math.max(0, Math.min(1, Number(s.pos) || 0)),
+      neu: Math.max(0, Math.min(1, Number(s.neu) || 0)),
+      neg: Math.max(0, Math.min(1, Number(s.neg) || 0)),
+      compound: Number(s.compound) || 0
+    };
 
     // Prediction
     $("pred").textContent = isBuzz ? "Buzz" : "No Buzz";
@@ -267,26 +317,71 @@ async function predict(){
     $("predPill").className = "pill sm " + (isBuzz ? "ok" : "bad");
 
     // Probability (טקסט + פרוגרס בר)
-    $("prob").textContent = (p*100).toFixed(2) + "%";
+    $("prob").textContent = (Math.max(0, Math.min(1, p)) * 100).toFixed(2) + "%";
     const fill = $("probFill");
     fill.style.width = Math.max(0, Math.min(1, p)) * 100 + "%";
     fill.className = "progress-fill " + (p<0.33 ? "low" : p<0.66 ? "med" : "high");
 
     // Sentiment badge
-    const top = Object.entries({Positive:s.pos, Neutral:s.neu, Negative:s.neg}).sort((a,b)=>b[1]-a[1])[0][0];
+    const top = Object.entries({Positive:sNorm.pos, Neutral:sNorm.neu, Negative:sNorm.neg})
+      .sort((a,b)=>b[1]-a[1])[0][0];
     $("sent").textContent = top;
     $("sent").className = "pill sm " + (top==="Positive" ? "ok" : top==="Negative" ? "bad" : "muted");
 
-
     // גרפים
     const ctx1=$("probChart").getContext("2d"); if(probChart) probChart.destroy();
-    probChart=new Chart(ctx1,{type:"doughnut",data:{labels:["Success","Other"],datasets:[{data:[p,Math.max(0,1-p)]}]},options:{plugins:{legend:{display:false}},cutout:"70%"}});
+    probChart = new Chart(ctx1, {
+      type: "doughnut",
+      data: {
+        labels: ["Success", "Other"],
+        datasets: [{
+          data: [Math.max(0, Math.min(1, p)), Math.max(0, 1 - Math.max(0, Math.min(1, p)))],
+          backgroundColor: ["#22c55e", "#f87171"] // ירוק ואדום
+        }]
+      },
+      options: {
+        plugins: { legend: { display: false } },
+        cutout: "70%"
+      },
+      plugins: [centerTextPlugin((Math.max(0, Math.min(1, p))*100).toFixed(2) + "%")]
+    });
 
     const ctx2=$("sentChart").getContext("2d"); if(sentChart) sentChart.destroy();
-    sentChart=new Chart(ctx2,{type:"bar",data:{labels:["Positive","Neutral","Negative"],datasets:[{data:[s.pos||0,s.neu||0,s.neg||0]}]},options:{plugins:{legend:{display:false}},scales:{y:{suggestedMax:1}}}});
+    sentChart = new Chart(ctx2, {
+      type:"bar",
+      data:{
+        labels:["Positive","Neutral","Negative"],
+        datasets:[{ data:[sNorm.pos, sNorm.neu, sNorm.neg] }]
+      },
+      options:{
+        plugins:{ legend:{ display:false } },
+        scales:{ y:{ min:0, max:1 } }
+      }
+    });
 
-    const ctx3=$("compChart").getContext("2d"); if(compChart) compChart.destroy();
-    compChart=new Chart(ctx3,{type:"bar",data:{labels:["Compound (-1..1)"],datasets:[{data:[(s.compound+1)/2]}]},options:{plugins:{legend:{display:false}},scales:{y:{suggestedMax:1}}}});
+    // ── Model Accuracy (דונאט ירוק עם טקסט 70%) ──
+    const ACC = 0.70; // 70% דיוק
+    const accCtx = document.getElementById("accuracyChart").getContext("2d");
+    if (window.accuracyChart) window.accuracyChart.destroy();
+    window.accuracyChart = new Chart(accCtx, {
+      type: "doughnut",
+      data: {
+        labels: ["Accuracy", "Other"],
+        datasets: [{
+          data: [ACC, 1 - ACC],
+          backgroundColor: ["#2E7D32", "#f8d5dd"],
+          borderWidth: 0
+        }]
+      },
+      options: {
+        cutout: "70%",
+        plugins: {
+          legend: { display: false },
+          tooltip: { callbacks: { label: (ctx) => `${ctx.label}: ${(ctx.raw * 100).toFixed(2)}%` } }
+        }
+      },
+      plugins: [centerTextPlugin(`${(ACC*100).toFixed(0)}%`)]
+    });
 
     $("results").style.display="grid";
   }catch(e){
@@ -299,5 +394,3 @@ $("go").onclick=predict;
 </script>
 </body>
 </html>
-
-
