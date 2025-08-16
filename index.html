@@ -223,26 +223,26 @@
 
       <!-- אזור תוצאות -->
       <div class="grid" id="results" style="display:none; margin-top:14px" aria-live="polite">
-        <div class="card kpi-card">
-          <div class="kpi-row">
-            <div class="kpi-label">Prediction:</div>
-            <div class="kpi-value">
-              <span id="pred">–</span>
-              <span id="predPill" class="pill sm muted" style="margin-inline-start:8px">–</span>
-            </div>
-          </div>
-
-          <div class="kpi-row">
-            <div class="kpi-label">Probability:</div>
-            <div class="kpi-value"><span id="prob">–</span></div>
-          </div>
-          <div class="progress"><div id="probFill" class="progress-fill"></div></div>
-
-          <div class="kpi-row">
-            <div class="kpi-label">Sentiment:</div>
-            <div class="kpi-value"><span id="sent" class="pill sm muted">–</span></div>
+      <div class="card kpi-card">
+        <div class="kpi-row">
+          <div class="kpi-label">Prediction:</div>
+          <div class="kpi-value">
+            <span id="predPill" class="pill sm muted">–</span>
           </div>
         </div>
+      
+        <div class="kpi-row">
+          <div class="kpi-label">Probability:</div>
+          <div class="kpi-value"><span id="prob">–</span></div>
+        </div>
+        <div class="progress"><div id="probFill" class="progress-fill"></div></div>
+      
+        <div class="kpi-row">
+          <div class="kpi-label">Sentiment:</div>
+          <div class="kpi-value"><span id="sent" class="pill sm muted">–</span></div>
+        </div>
+      </div>
+
 
         <div class="card"><div><strong>Success Probability</strong></div><canvas id="probChart" height="220"></canvas></div>
         <div class="card"><div><strong>Sentiment Breakdown</strong></div><canvas id="sentChart" height="220"></canvas></div>
@@ -379,6 +379,7 @@ $("go").onclick=predict;
 </script>
 </body>
 </html>
+
 
 
 
