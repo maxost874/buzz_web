@@ -171,22 +171,28 @@
     padding:20px;
   }
   .kpi-row{
-    display:grid;
-    grid-template-columns: auto 1fr; /* label | value */
-    align-items:center;
-    column-gap:14px;
+    display: grid;
+    grid-template-columns: 1fr auto; /* קודם כותרת (שמאל), ואז ערך (ימין) */
+    align-items: center;
+    column-gap: 14px;
+    direction: ltr;                 /* הופך את זרימת ה-grid לשמאל→ימין רק בשורה הזו */
   }
   .kpi-label{
     font-weight:800;
     color:#16351a;
-    text-align:right;
-    direction:ltr;            /* כדי שהנקודתיים יופיעו בסוף */
+    text-align: left;               /* הכותרת לשמאל */
   }
+  .kpi-label::after{ content: ":"; } /* נקודתיים אחרי הכותרת */
   .kpi-value{
     font-weight:700;
-    display:flex; align-items:center; gap:8px;
-    text-align:left; direction:ltr;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    justify-content: flex-end;      /* הערך “נדבק” לימין השורה */
+    text-align: right;
+    direction: ltr;
   }
+
 
   /* Progress */
   .progress{ height:10px; background:#ecf2ec; border-radius:999px; overflow:hidden; }
@@ -249,7 +255,6 @@
          <div class="card metric-card" id="accCard">
             <div class="metric-title">Model Accuracy</div>
             <div class="metric-value" id="accValue">70%</div>
-            <div class="metric-sub">on validation set</div>
           </div>
 
       </div>
@@ -328,8 +333,7 @@ async function predict(){
     // Prediction
     $("predPill").textContent = isBuzz ? "High potential" : "Low potential";
     $("predPill").className = "pill sm " + (isBuzz ? "ok" : "bad");
-    $("predPill").textContent = isBuzz ? "High potential" : "Low potential";
-    $("predPill").className = "pill sm " + (isBuzz ? "ok" : "bad");
+
 
     // Probability (טקסט + פרוגרס בר)
     $("prob").textContent = (p*100).toFixed(2) + "%";
@@ -380,6 +384,7 @@ $("go").onclick=predict;
 </script>
 </body>
 </html>
+
 
 
 
