@@ -1,4 +1,4 @@
-  <!doctype html>
+<!doctype html>
 <html lang="he" dir="rtl">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
@@ -74,6 +74,15 @@
     font-size:16px;
   }
 
+  /* תווית לשדה הטקסט – מיושר שמאלה */
+  .post-label{
+    display:block;
+    margin:0 0 6px;
+    text-align:left;  /* יישור שמאלה */
+    direction:ltr;    /* כתיבה משמאל לימין */
+    font-weight:700;
+  }
+
   /* כרטיסים, טקסט, כפתורים */
 
   .grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:20px}
@@ -99,6 +108,30 @@
     font-weight:700;cursor:pointer; box-shadow:0 2px 8px rgba(0,0,0,.12)
   }
   .btn.ghost{background:#e2e8f0;color:#111}
+
+    /* Back button */
+  .back-btn{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    padding:10px 18px;
+    background:#e9eef5;
+    border-radius:10px;
+    font-weight:800;
+    color:#0f172a;
+    text-decoration:none;
+    box-shadow:0 2px 8px rgba(0,0,0,.12);
+    transition:all .2s ease;
+  }
+  .back-btn:hover{
+    background:#dfe7f3;
+    transform:translateY(-2px);
+  }
+  .back-btn .arrow{ line-height:1 }
+
+  /* כיוון החץ לפי כיוון הדף */
+  [dir="rtl"] .back-btn .arrow::before{ content:"\2192"; } /* → ב-RTL */
+  [dir="ltr"] .back-btn .arrow::before{ content:"\2190"; } /* ← ב-LTR */
 
   .pill{padding:6px 10px;border-radius:999px;font-weight:700;background:#eee}
   .pill.ok{color:var(--ok);background:#e8f5e9}
@@ -144,11 +177,16 @@
       <div class="subline">Fill in the details, analyze your content, and predict the buzz</div>
 
       <!-- טקסט + כפתורים -->
+
       <div class="card" style="margin-top:10px">
-        <label style="display:block;margin-bottom:6px">Post Text</label>
+        <label for="txt" class="post-label">Post Text</label>
         <textarea id="txt" placeholder="Example: This post will explode today!"></textarea>
-        <div class="row" style="margin-top:10px">
-          <a class="btn ghost" id="back" href="#">← Back to Dashboard</a>
+      <div class="row" style="margin-top:10px">
+
+         <a class="back-btn" id="back" href="#">
+           <span>Back to Dashboard</span><i class="arrow"></i>
+         </a>
+
           <button id="go">Predict</button>
         </div>
       </div>
@@ -261,4 +299,5 @@ $("go").onclick=predict;
 </script>
 </body>
 </html>
+
 
