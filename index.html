@@ -298,25 +298,35 @@ async function predict(){
       }
     });
 
-    // Model Accuracy (דונאט ירוק עם טקסט 70%)
-    const ACC = 0.70;
-    const accCtx = document.getElementById("accuracyChart").getContext("2d");
-    if (window.accuracyChart) window.accuracyChart.destroy();
-    window.accuracyChart = new Chart(accCtx, {
-      type: "doughnut",
-      data: {
-        labels: ["Accuracy", "Other"],
-        datasets: [{ data: [ACC, 1-ACC], backgroundColor: ["#2E7D32", "#f8d5dd"], borderWidth:0 }]
-      },
-      options: {
-        cutout: "70%",
-        plugins: {
-          legend: { display:false },
-          tooltip: { callbacks:{ label: (ctx)=> `${ctx.label}: ${(ctx.raw*100).toFixed(2)}%` } }
-        }
-      },
-      plugins: [centerTextPlugin(`${(ACC*100).toFixed(0)}%`)]
-    });
+  // ── Model Accuracy (דונאט ירוק עם טקסט 70%) ──
+  const ACC = 0.70; // 70% דיוק
+  const accCtx = document.getElementById("accuracyChart").getContext("2d");
+  
+  // אל תשתמש בשם accuracyChart שיתנגש עם id של האלמנט
+  if (window._accuracyChart && typeof window._accuracyChart.destroy === "function") {
+    window._accuracyChart.destroy();
+  }
+  
+  window._accuracyChart = new Chart(accCtx, {
+    type: "doughnut",
+    data: {
+      labels: ["Accuracy", "Other"],
+      datasets: [{
+        data: [ACC, 1 - ACC],
+        backgroundColor: ["#2E7D32", "#f8d5dd"],
+        borderWidth: 0
+      }]
+    },
+    options: {
+      cutout: "70%",
+      plugins: {
+        legend: { display: false },
+        tooltip: { callbacks: { label: (ctx) => `${ctx.label}: ${(ctx.raw * 100).toFixed(2)}%` } }
+      }
+    },
+    plugins: [centerTextPlugin(`${(ACC*100).toFixed(0)}%`)]
+  });
+
 
     $("results").style.display="grid";
   }catch(e){
@@ -329,3 +339,4 @@ $("go").onclick=predict;
 </script>
 </body>
 </html>
+
