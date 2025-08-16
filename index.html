@@ -46,7 +46,7 @@
     padding:18px 18px 26px;
   }
 
-  /* פס כותרת כמו “Create a New Post” */
+  /* פס כותרת */
   .header{
     position:relative;
     background:var(--headline);
@@ -62,8 +62,8 @@
     position:absolute; top:50%; transform:translateY(-50%);
     width:42px; height:42px; object-fit:contain;
   }
-  .header .left{ right:auto; left:14px; }
-  .header .right{ left:auto; right:14px; }
+  .header .left{ left:14px; }
+  .header .right{ right:14px; }
 
   .subline{
     margin:14px 0 10px;
@@ -78,27 +78,18 @@
   .post-label{
     display:block;
     margin:0 0 6px;
-    text-align:left;  /* יישור שמאלה */
-    direction:ltr;    /* כתיבה משמאל לימין */
+    text-align:left;
+    direction:ltr;
     font-weight:700;
   }
 
   /* כרטיסים, טקסט, כפתורים */
-
   .grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:20px}
   .card{background:#fff; border-radius:12px; padding:18px; box-shadow:0 2px 10px rgba(0,0,0,.06)}
 
-   textarea{
-      width: 95%;
-      max-width: 95%;
-      margin: 10px auto;
-      display: block;
-      box-sizing: border-box;
-
-      /* השינויים הרלוונטיים */
-      direction: ltr;
-      text-align: left;
-      unicode-bidi: plaintext;
+  textarea{
+    width:95%; max-width:95%; margin:10px auto; display:block; box-sizing:border-box;
+    direction:ltr; text-align:left; unicode-bidi:plaintext;
   }
 
   .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:space-between}
@@ -110,73 +101,37 @@
 
   /* Back button */
   .back-btn{
-    display:inline-flex;
-    align-items:center;
-    gap:8px;
-    padding:10px 18px;
-    background:#e9eef5;
-    border-radius:10px;
-    font-weight:800;
-    color:#0f172a;
-    text-decoration:none;
-    box-shadow:0 2px 8px rgba(0,0,0,.12);
-    transition:all .2s ease;
+    display:inline-flex; align-items:center; gap:8px; padding:10px 18px;
+    background:#e9eef5; border-radius:10px; font-weight:800; color:#0f172a;
+    text-decoration:none; box-shadow:0 2px 8px rgba(0,0,0,.12); transition:all .2s ease;
   }
-  .back-btn:hover{
-    background:#dfe7f3;
-    transform:translateY(-2px);
-  }
+  .back-btn:hover{ background:#dfe7f3; transform:translateY(-2px); }
   .back-btn .arrow{ line-height:1 }
-
-  /* כיוון החץ לפי כיוון הדף */
-  [dir="rtl"] .back-btn .arrow::before{ content:"\2190"; } /* ← ב-RTL */
-  [dir="ltr"] .back-btn .arrow::before{ content:"\2192"; } /* → ב-LTR */
+  [dir="rtl"] .back-btn .arrow::before{ content:"\2190"; } /* ← */
+  [dir="ltr"] .back-btn .arrow::before{ content:"\2192"; } /* → */
 
   .pill{padding:6px 10px;border-radius:999px;font-weight:700;background:#eee}
   .pill.ok{color:var(--ok);background:#e8f5e9}
   .pill.bad{color:var(--bad);background:#fdecec}
   .pill.muted{color:var(--muted);background:#f3f4f6}
 
-  /* כרטיס KPI מסודר */
+  /* KPI */
   .kpi-card{ display:grid; gap:12px; }
   .kpi-row{
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    gap:12px;
-    /* חדש: שהשורה תהיה משמאל לימין */
-    direction:ltr;
-    text-align:left;
+    display:flex; align-items:center; justify-content:space-between; gap:12px;
+    direction:ltr; text-align:left;
   }
-  .kpi-label{
-    font-weight:800;
-    color:#16351a;
-    /* חדש: התווית נשארת מיושרת לימין כדי שהכיתוב יהיה בצד ימין */
-    direction:rtl;
-    text-align:right;
-  }
-  .kpi-value{
-    font-weight:700;
-    /* חדש: הערך עצמו תמיד LTR */
-    direction:ltr;
-    text-align:left;
-  }
+  .kpi-label{ font-weight:800; color:#16351a; direction:rtl; text-align:right; }
+  .kpi-value{ font-weight:700; direction:ltr; text-align:left; display:flex; align-items:center; gap:8px; }
 
-  /* סרגל התקדמות לאחוז ההצלחה */
+  /* Progress */
   .progress{ height:10px; background:#ecf2ec; border-radius:999px; overflow:hidden; }
   .progress-fill{ height:100%; width:0%; transition:width .4s ease; }
-  .progress-fill.low{  background:#f7b6b6; }    /* < 0.33 */
-  .progress-fill.med{  background:#ffd07a; }    /* 0.33–0.66 */
-  .progress-fill.high{ background:#9ad29b; }    /* > 0.66 */
+  .progress-fill.low{  background:#f7b6b6; }
+  .progress-fill.med{  background:#ffd07a; }
+  .progress-fill.high{ background:#9ad29b; }
 
-  /* תגיות יפות (משתמשים ב-.pill שכבר קיימת) */
   .pill.sm{ padding:4px 8px; font-weight:800; }
-
-  .kpi-row .kpi-value{
-    display:flex;
-    align-items:center;
-    gap:8px;
-  }
 </style>
 </head>
 <body>
@@ -197,11 +152,7 @@
         <label for="txt" class="post-label">Post Text</label>
         <textarea id="txt" placeholder="Example: This post will explode today!"></textarea>
         <div class="row" style="margin-top:10px">
-
-          <a class="back-btn" id="back" href="#">
-            <span>Back to Dashboard</span><i class="arrow"></i>
-          </a>
-
+          <a class="back-btn" id="back" href="#"><span>Back to Dashboard</span><i class="arrow"></i></a>
           <button id="go">Predict</button>
         </div>
       </div>
@@ -245,8 +196,6 @@ let probChart, sentChart;
 const $ = id => document.getElementById(id);
 $("back").href = DASHBOARD_URL;
 
-function setPill(el,k){ el.className="pill "+(k==="ok"?"ok":"bad") }
-
 async function sleep(ms){ return new Promise(r=>setTimeout(r, ms)); }
 async function wakeApi(maxTries=6){
   for(let i=1;i<=maxTries;i++){
@@ -259,10 +208,7 @@ async function wakeApi(maxTries=6){
   return false;
 }
 
-// פורמט נוח לאחוזים (נשאר לשימוש עתידי)
-function pct(v){ return (Math.max(0, Math.min(1, Number(v))) * 100).toFixed(2) + "%"; }
-
-// פלאגין שמצייר טקסט במרכז הדונאט עם ID ייחודי כדי למנוע אזהרות כפילות
+/* פלאגין טקסט במרכז דונאט — עם ID ייחודי כדי למנוע כפילות */
 function centerTextPlugin(text, id = "centerText_" + Math.random().toString(36).slice(2)){
   return {
     id,
@@ -299,11 +245,13 @@ async function predict(){
     const d = await r.json();
 
     const isBuzz = Number(d.prediction)===1;
-    const pRaw = Number(d.probability);
-    const p = (isFinite(pRaw) ? pRaw : 0);
-    const s = d.sentiment || {pos:0,neu:0,neg:0,compound:0};
 
-    // נרמול סנטימנט למניעת ערכים לא חוקיים
+    // הסתברות עם clamp
+    const pRaw = Number(d.probability);
+    const p = Math.max(0, Math.min(1, isFinite(pRaw) ? pRaw : 0));
+
+    // נרמול סנטימנט
+    const s = d.sentiment || {pos:0,neu:0,neg:0,compound:0};
     const sNorm = {
       pos: Math.max(0, Math.min(1, Number(s.pos) || 0)),
       neu: Math.max(0, Math.min(1, Number(s.neu) || 0)),
@@ -317,9 +265,9 @@ async function predict(){
     $("predPill").className = "pill sm " + (isBuzz ? "ok" : "bad");
 
     // Probability (טקסט + פרוגרס בר)
-    $("prob").textContent = (Math.max(0, Math.min(1, p)) * 100).toFixed(2) + "%";
+    $("prob").textContent = (p*100).toFixed(2) + "%";
     const fill = $("probFill");
-    fill.style.width = Math.max(0, Math.min(1, p)) * 100 + "%";
+    fill.style.width = (p*100) + "%";
     fill.className = "progress-fill " + (p<0.33 ? "low" : p<0.66 ? "med" : "high");
 
     // Sentiment badge
@@ -328,56 +276,43 @@ async function predict(){
     $("sent").textContent = top;
     $("sent").className = "pill sm " + (top==="Positive" ? "ok" : top==="Negative" ? "bad" : "muted");
 
-    // גרפים
+    // ── גרפים ──
     const ctx1=$("probChart").getContext("2d"); if(probChart) probChart.destroy();
     probChart = new Chart(ctx1, {
       type: "doughnut",
       data: {
         labels: ["Success", "Other"],
-        datasets: [{
-          data: [Math.max(0, Math.min(1, p)), Math.max(0, 1 - Math.max(0, Math.min(1, p)))],
-          backgroundColor: ["#22c55e", "#f87171"] // ירוק ואדום
-        }]
+        datasets: [{ data: [p, 1 - p], backgroundColor: ["#22c55e", "#f87171"] }]
       },
-      options: {
-        plugins: { legend: { display: false } },
-        cutout: "70%"
-      },
-      plugins: [centerTextPlugin((Math.max(0, Math.min(1, p))*100).toFixed(2) + "%")]
+      options: { plugins: { legend: { display:false } }, cutout: "70%" },
+      plugins: [centerTextPlugin((p*100).toFixed(2) + "%")]
     });
 
     const ctx2=$("sentChart").getContext("2d"); if(sentChart) sentChart.destroy();
     sentChart = new Chart(ctx2, {
       type:"bar",
-      data:{
-        labels:["Positive","Neutral","Negative"],
-        datasets:[{ data:[sNorm.pos, sNorm.neu, sNorm.neg] }]
-      },
+      data:{ labels:["Positive","Neutral","Negative"], datasets:[{ data:[sNorm.pos, sNorm.neu, sNorm.neg] }] },
       options:{
         plugins:{ legend:{ display:false } },
         scales:{ y:{ min:0, max:1 } }
       }
     });
 
-    // ── Model Accuracy (דונאט ירוק עם טקסט 70%) ──
-    const ACC = 0.70; // 70% דיוק
+    // Model Accuracy (דונאט ירוק עם טקסט 70%)
+    const ACC = 0.70;
     const accCtx = document.getElementById("accuracyChart").getContext("2d");
     if (window.accuracyChart) window.accuracyChart.destroy();
     window.accuracyChart = new Chart(accCtx, {
       type: "doughnut",
       data: {
         labels: ["Accuracy", "Other"],
-        datasets: [{
-          data: [ACC, 1 - ACC],
-          backgroundColor: ["#2E7D32", "#f8d5dd"],
-          borderWidth: 0
-        }]
+        datasets: [{ data: [ACC, 1-ACC], backgroundColor: ["#2E7D32", "#f8d5dd"], borderWidth:0 }]
       },
       options: {
         cutout: "70%",
         plugins: {
-          legend: { display: false },
-          tooltip: { callbacks: { label: (ctx) => `${ctx.label}: ${(ctx.raw * 100).toFixed(2)}%` } }
+          legend: { display:false },
+          tooltip: { callbacks:{ label: (ctx)=> `${ctx.label}: ${(ctx.raw*100).toFixed(2)}%` } }
         }
       },
       plugins: [centerTextPlugin(`${(ACC*100).toFixed(0)}%`)]
