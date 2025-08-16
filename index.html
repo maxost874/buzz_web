@@ -84,7 +84,12 @@
   }
 
   /* כרטיסים, טקסט, כפתורים */
-  .grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:20px}
+   .grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit, minmax(320px, 1fr)); /* היה 260px */
+    gap:20px;
+  }
+
   .card{background:#fff; border-radius:12px; padding:18px; box-shadow:0 2px 10px rgba(0,0,0,.06)}
 
   textarea {
@@ -129,30 +134,32 @@
 
   /* KPI */
  
-    .kpi-card {
-      display: grid;
-       gap: 16px;
-       font-size: 18px;      /* טקסט גדול יותר */
-       padding: 20px;        /* יותר ריווח פנימי */
-     }
-   .kpi-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-      padding: 4px 0;
-    }
-  
-  .kpi-label {
-      font-weight: 800;
-      color: #16351a;
-      text-align: left;   /* יישור טקסט לשמאל */
-      direction: ltr;     /* כך ה-":" נשאר לפני המילה */
-    }
+  /* KPI – יישור נקי: label בצד ימין, value משמאל */
+  .kpi-card{
+    display:grid;
+    gap:16px;
+    font-size:18px;
+    padding:20px;
+  }
+  .kpi-row{
+    display:grid;
+    grid-template-columns: auto 1fr; /* label | value */
+    align-items:center;
+    column-gap:14px;
+  }
+  .kpi-label{
+    font-weight:800;
+    color:#16351a;
+    text-align:right;
+    direction:ltr;            /* כדי שהנקודתיים יופיעו בסוף */
+  }
+  .kpi-label::after{ content: ":"; }  /* מוסיף את ה-":" במקום הנכון */
+  .kpi-value{
+    font-weight:700;
+    display:flex; align-items:center; gap:8px;
+    text-align:left; direction:ltr;
+  }
 
-   .kpi-value span {
-      font-size: 18px;      /* שגם הערכים יהיו גדולים */
-    }
   /* Progress */
   .progress{ height:10px; background:#ecf2ec; border-radius:999px; overflow:hidden; }
   .progress-fill{ height:100%; width:0%; transition:width .4s ease; }
@@ -213,7 +220,7 @@
         <div class="card"><div><strong>Sentiment Breakdown</strong></div><canvas id="sentChart" height="220"></canvas></div>
         <div class="card">
           <div><strong>Model Accuracy</strong></div>
-          <canvas id="accuracyChart" height="220"></canvas>
+          <canvas id="accuracyChart" height="260" style="width:100%"></canvas>
         </div>
       </div>
     </div>
@@ -327,52 +334,49 @@ async function predict(){
       }
     });
 
- // ── Model Accuracy as Gauge (Speedometer) ──
-const ACC = 0.70; // 70% דיוק (0..1)
-const GAUGE_ROT = -Math.PI;     // מתחילים משמאל (חצי עיגול)
-const GAUGE_CIRC = Math.PI;     // חצי עיגול
-
-const accCtx = document.getElementById("accuracyChart").getContext("2d");
-
-// מחיקה בטוחה של תרשים קודם (שם גלובלי שלא יתנגש עם id האלמנט)
-if (window._accuracyChart && typeof window._accuracyChart.destroy === "function") {
-  window._accuracyChart.destroy();
-}
+  // ── Model Accuracy as Gauge (Speedometer) ──
+  const ACC = 0.70; // 0..1
   
-  // פלגין למחוג
+  const accCtx = document.getElementById("accuracyChart").getContext("2d");
+  if (window._accuracyChart && typeof window._accuracyChart.destroy === "function") {
+    window._accuracyChart.destroy();
+  }
+  
+  /* פלגין למחוג, משתמש במרכז/רדיוסים מתוך המטה של Chart.js */
   function gaugeNeedlePlugin(value){
     return {
       id: "gaugeNeedle",
-      afterDatasetDraw(chart, args, pluginOpts){
-        const { ctx, chartArea:{left, right, top, bottom}, data } = chart;
+      afterDatasetDraw(chart){
         const meta = chart.getDatasetMeta(0);
-        if (!meta?.data?.length) return;
-        const centerX = (left + right) / 2;
-        const centerY = bottom;                  // מרכז החצי-עיגול בתחתית
-        const outer = meta.data[0].outerRadius;  // רדיוס חיצוני של הדונאט
-        const cutout = meta.data[0].innerRadius; // רדיוס חור
+        const arc = meta.data[0];
+        if (!arc) return;
   
-        // זווית המחוג לפי הערך
-        const angle = GAUGE_ROT + (value * GAUGE_CIRC);
+        const {ctx} = chart;
+        const cx = arc.x;              // מרכז עיגול
+        const cy = arc.y;              // מרכז עיגול
+        const outer = arc.outerRadius; // רדיוס חיצוני
+        const inner = arc.innerRadius; // רדיוס פנימי
+        const r = (outer + inner) / 2; // אורך המחוג
   
-        // נקודת קצה המחוג
-        const r = (outer + cutout) / 2; // אורך המחוג – עד האמצע בין חוץ לפנים
-        const x = centerX + r * Math.cos(angle);
-        const y = centerY + r * Math.sin(angle);
+        // חצי עיגול: מתחיל מ- -90° (שמאלה) עד +90° (ימינה)
+        const start = -Math.PI;        // -180°
+        const angle = start + (value * Math.PI); // value∈[0..1] → [-180..0..+0..+180]
   
-        // ציור המחוג
+        const x = cx + r * Math.cos(angle);
+        const y = cy + r * Math.sin(angle);
+  
         ctx.save();
         ctx.lineWidth = 3;
         ctx.strokeStyle = "#111";
         ctx.fillStyle = "#111";
-        // קו
+        // קו המחוג
         ctx.beginPath();
-        ctx.moveTo(centerX, centerY);
+        ctx.moveTo(cx, cy);
         ctx.lineTo(x, y);
         ctx.stroke();
         // פין במרכז
         ctx.beginPath();
-        ctx.arc(centerX, centerY, 5, 0, 2*Math.PI);
+        ctx.arc(cx, cy, 5, 0, 2*Math.PI);
         ctx.fill();
         ctx.restore();
       }
@@ -382,34 +386,27 @@ if (window._accuracyChart && typeof window._accuracyChart.destroy === "function"
   window._accuracyChart = new Chart(accCtx, {
     type: "doughnut",
     data: {
-      labels: ["Accuracy", "Other"],
+      // אפשר לפרק לטווחים (אדום/צהוב/ירוק) אם תרצה; כאן פשוט ירוק+שארית
       datasets: [{
-        data: [ACC, 1 - ACC],
-        // ירוק לערך, ורוד לשאר
+        data: [ACC, 1-ACC],
         backgroundColor: ["#2E7D32", "#f8d5dd"],
         borderWidth: 0
       }]
     },
     options: {
-      rotation: GAUGE_ROT,       // הפיכה לחצי-עיגול
-      circumference: GAUGE_CIRC, // חצי
+      responsive: true,
+      maintainAspectRatio: false,   // שלא יתעוות לפי הקארד
+      rotation: -Math.PI,           // חצי עיגול מלמטה (שמאלה→ימינה)
+      circumference: Math.PI,
       cutout: "70%",
-      plugins: {
-        legend: { display: false },
-        tooltip: {
-          callbacks: {
-            label: (ctx) => `${ctx.label}: ${(ctx.raw * 100).toFixed(2)}%`
-          }
-        }
-      }
+      plugins: { legend: { display:false }, tooltip: { enabled:false } }
     },
     plugins: [
-      // טקסט במרכז (70%)
       centerTextPlugin(`${(ACC*100).toFixed(0)}%`),
-      // מחוג
       gaugeNeedlePlugin(ACC)
     ]
   });
+
 
 
     $("results").style.display="grid";
@@ -423,5 +420,6 @@ $("go").onclick=predict;
 </script>
 </body>
 </html>
+
 
 
