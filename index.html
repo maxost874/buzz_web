@@ -87,10 +87,22 @@
   .grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:20px}
   .card{background:#fff; border-radius:12px; padding:18px; box-shadow:0 2px 10px rgba(0,0,0,.06)}
 
-  textarea{
-    width:95%; max-width:95%; margin:10px auto; display:block; box-sizing:border-box;
-    direction:ltr; text-align:left; unicode-bidi:plaintext;
+  textarea {
+    width: 100%;           /* יתפוס את כל הרוחב של הכרטיס */
+    max-width: 100%;
+    min-height: 120px;     /* גובה התחלתי – שורה וחצי-שתיים */
+    margin: 10px auto;
+    display: block;
+    box-sizing: border-box;
+  
+    /* כתיבה LTR */
+    direction: ltr;
+    text-align: left;
+    unicode-bidi: plaintext;
+  
+    resize: vertical;      /* אפשרות למשתמש להגדיל/להקטין רק בגובה */
   }
+
 
   .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:space-between}
   .btn,button{
@@ -116,14 +128,31 @@
   .pill.muted{color:var(--muted);background:#f3f4f6}
 
   /* KPI */
-  .kpi-card{ display:grid; gap:12px; }
-  .kpi-row{
-    display:flex; align-items:center; justify-content:space-between; gap:12px;
-    direction:ltr; text-align:left;
-  }
-  .kpi-label{ font-weight:800; color:#16351a; direction:rtl; text-align:right; }
-  .kpi-value{ font-weight:700; direction:ltr; text-align:left; display:flex; align-items:center; gap:8px; }
+ 
+    .kpi-card {
+      display: grid;
+       gap: 16px;
+       font-size: 18px;      /* טקסט גדול יותר */
+       padding: 20px;        /* יותר ריווח פנימי */
+     }
+   .kpi-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 4px 0;
+    }
+  
+  .kpi-label {
+      font-weight: 800;
+      color: #16351a;
+      text-align: left;   /* יישור טקסט לשמאל */
+      direction: ltr;     /* כך ה-":" נשאר לפני המילה */
+    }
 
+   .kpi-value span {
+      font-size: 18px;      /* שגם הערכים יהיו גדולים */
+    }
   /* Progress */
   .progress{ height:10px; background:#ecf2ec; border-radius:999px; overflow:hidden; }
   .progress-fill{ height:100%; width:0%; transition:width .4s ease; }
@@ -298,13 +327,56 @@ async function predict(){
       }
     });
 
-  // ── Model Accuracy (דונאט ירוק עם טקסט 70%) ──
-  const ACC = 0.70; // 70% דיוק
-  const accCtx = document.getElementById("accuracyChart").getContext("2d");
+ // ── Model Accuracy as Gauge (Speedometer) ──
+const ACC = 0.70; // 70% דיוק (0..1)
+const GAUGE_ROT = -Math.PI;     // מתחילים משמאל (חצי עיגול)
+const GAUGE_CIRC = Math.PI;     // חצי עיגול
+
+const accCtx = document.getElementById("accuracyChart").getContext("2d");
+
+// מחיקה בטוחה של תרשים קודם (שם גלובלי שלא יתנגש עם id האלמנט)
+if (window._accuracyChart && typeof window._accuracyChart.destroy === "function") {
+  window._accuracyChart.destroy();
+}
   
-  // אל תשתמש בשם accuracyChart שיתנגש עם id של האלמנט
-  if (window._accuracyChart && typeof window._accuracyChart.destroy === "function") {
-    window._accuracyChart.destroy();
+  // פלגין למחוג
+  function gaugeNeedlePlugin(value){
+    return {
+      id: "gaugeNeedle",
+      afterDatasetDraw(chart, args, pluginOpts){
+        const { ctx, chartArea:{left, right, top, bottom}, data } = chart;
+        const meta = chart.getDatasetMeta(0);
+        if (!meta?.data?.length) return;
+        const centerX = (left + right) / 2;
+        const centerY = bottom;                  // מרכז החצי-עיגול בתחתית
+        const outer = meta.data[0].outerRadius;  // רדיוס חיצוני של הדונאט
+        const cutout = meta.data[0].innerRadius; // רדיוס חור
+  
+        // זווית המחוג לפי הערך
+        const angle = GAUGE_ROT + (value * GAUGE_CIRC);
+  
+        // נקודת קצה המחוג
+        const r = (outer + cutout) / 2; // אורך המחוג – עד האמצע בין חוץ לפנים
+        const x = centerX + r * Math.cos(angle);
+        const y = centerY + r * Math.sin(angle);
+  
+        // ציור המחוג
+        ctx.save();
+        ctx.lineWidth = 3;
+        ctx.strokeStyle = "#111";
+        ctx.fillStyle = "#111";
+        // קו
+        ctx.beginPath();
+        ctx.moveTo(centerX, centerY);
+        ctx.lineTo(x, y);
+        ctx.stroke();
+        // פין במרכז
+        ctx.beginPath();
+        ctx.arc(centerX, centerY, 5, 0, 2*Math.PI);
+        ctx.fill();
+        ctx.restore();
+      }
+    };
   }
   
   window._accuracyChart = new Chart(accCtx, {
@@ -313,18 +385,30 @@ async function predict(){
       labels: ["Accuracy", "Other"],
       datasets: [{
         data: [ACC, 1 - ACC],
+        // ירוק לערך, ורוד לשאר
         backgroundColor: ["#2E7D32", "#f8d5dd"],
         borderWidth: 0
       }]
     },
     options: {
+      rotation: GAUGE_ROT,       // הפיכה לחצי-עיגול
+      circumference: GAUGE_CIRC, // חצי
       cutout: "70%",
       plugins: {
         legend: { display: false },
-        tooltip: { callbacks: { label: (ctx) => `${ctx.label}: ${(ctx.raw * 100).toFixed(2)}%` } }
+        tooltip: {
+          callbacks: {
+            label: (ctx) => `${ctx.label}: ${(ctx.raw * 100).toFixed(2)}%`
+          }
+        }
       }
     },
-    plugins: [centerTextPlugin(`${(ACC*100).toFixed(0)}%`)]
+    plugins: [
+      // טקסט במרכז (70%)
+      centerTextPlugin(`${(ACC*100).toFixed(0)}%`),
+      // מחוג
+      gaugeNeedlePlugin(ACC)
+    ]
   });
 
 
@@ -339,4 +423,5 @@ $("go").onclick=predict;
 </script>
 </body>
 </html>
+
 
