@@ -354,7 +354,7 @@ async function predict(){
     };
 
     // Prediction
-    $("predPill").textContent = isBuzz ? "High potential" : "Low potential";
+    $("predPill").textContent = isBuzz ? "Buzz High potential" : "Buzz Low potential";
     $("predPill").className = "pill sm " + (isBuzz ? "ok" : "bad");
 
 
@@ -421,6 +421,7 @@ $("go").onclick=predict;
 </script>
 </body>
 </html>
+
 
 
 
