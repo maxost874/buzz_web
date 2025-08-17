@@ -245,65 +245,67 @@
 
       <!-- אזור תוצאות -->
       <div class="grid" id="results" style="display:none; margin-top:14px" aria-live="polite">
-
-      <div class="card kpi-card">
-        <div class="kpi-row">
-          <div class="kpi-label">Prediction:</div>
-          <div class="kpi-value">
-            <span id="predPill" class="pill sm muted">–</span>
+      
+        <div class="card kpi-card">
+          <div class="kpi-row">
+            <div class="kpi-label">Prediction:</div>
+            <div class="kpi-value">
+              <span id="predPill" class="pill sm muted">–</span>
+            </div>
+          </div>
+      
+          <div class="kpi-row">
+            <div class="kpi-label">Probability:</div>
+            <div class="kpi-value"><span id="prob">–</span></div>
+          </div>
+          <div class="progress"><div id="probFill" class="progress-fill"></div></div>
+      
+          <div class="kpi-row">
+            <div class="kpi-label">Sentiment:</div>
+            <div class="kpi-value"><span id="sent" class="pill sm muted">–</span></div>
           </div>
         </div>
       
-        <div class="kpi-row">
-          <div class="kpi-label">Probability:</div>
-          <div class="kpi-value"><span id="prob">–</span></div>
-        </div>
-        <div class="progress"><div id="probFill" class="progress-fill"></div></div>
-      
-        <div class="kpi-row">
-          <div class="kpi-label">Sentiment:</div>
-          <div class="kpi-value"><span id="sent" class="pill sm muted">–</span></div>
-        </div>
-      </div>
-
         <div class="card chart">
           <div><strong>Success Probability</strong></div>
           <canvas id="probChart"></canvas>
         </div>
-        
+      
         <div class="card chart">
           <div><strong>Sentiment Breakdown</strong></div>
           <canvas id="sentChart"></canvas>
         </div>
-
-         <div class="card metric-card" id="accCard">
-            <div class="metric-title">Model Accuracy</div>
-            <div class="metric-value" id="accValue">70%</div>
-          </div>
-
-      </div>
-    </div>
-  </div>
-
-     <!-- ===== AI Post Improver ===== -->
-    <section id="improveSection" style="margin-top:24px;padding:16px;border:2px solid #2e5d2e;background:#f3fbf2;border-radius:16px">
-     <h2 style="color:#0b6623;margin:0 0 8px">AI – שדרוג פוסט</h2>
-     <p style="margin:0 0 12px">לחץ לקבלת כותרת מוצעת, 3 נוסחים משופרים והאשטגים על בסיס הטקסט למעלה.</p>
-       <button id="improveBtn" style="padding:10px 16px;border-radius:10px;border:1px solid #2e5d2e;background:#2e5d2e;color:#fff;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.12)">
+      
+        <div class="card metric-card" id="accCard">
+          <div class="metric-title">Model Accuracy</div>
+          <div class="metric-value" id="accValue">70%</div>
+        </div>
+      
+      </div> <!-- ← כאן נסגר ה-grid -->
+      
+      <!-- ===== AI Post Improver ===== -->
+      <section id="improveSection" style="margin-top:24px;padding:16px;border:2px solid #2e5d2e;background:#f3fbf2;border-radius:16px">
+        <h2 style="color:#0b6623;margin:0 0 8px">AI – שדרוג פוסט</h2>
+        <p style="margin:0 0 12px">לחץ לקבלת כותרת מוצעת, 3 נוסחים משופרים והאשטגים על בסיס הטקסט למעלה.</p>
+        <button id="improveBtn" style="padding:10px 16px;border-radius:10px;border:1px solid #2e5d2e;background:#2e5ד2e;color:#fff;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.12)">
           ✨ שדרג לי את הפוסט
         </button>
-        
+      
         <div id="improveArea" style="margin-top:14px;display:none">
           <h3 style="margin:10px 0 6px">כותרת מוצעת</h3>
           <div id="aiTitle" style="background:#fff;border:1px dashed #cfe3cf;padding:8px;border-radius:10px"></div>
-        
+      
           <h3 style="margin:14px 0 6px">נוסחים מוצעים</h3>
           <div id="aiSuggestions"></div>
-        
-           <h3 style="margin:14px 0 6px">#האשטגים</h3>
-           <div id="aiTags" style="background:#fff;border:1px dashed #cfe3cf;padding:8px;border-radius:10px"></div>
+      
+          <h3 style="margin:14px 0 6px">#האשטגים</h3>
+          <div id="aiTags" style="background:#fff;border:1px dashed #cfe3cf;padding:8px;border-radius:10px"></div>
         </div>
       </section>
+      
+      </div> <!-- ← כאן נסגרת .panel -->
+      </div>   <!-- ← כאן נסגרת .frame -->
+
 
 <script>
 /* ======= JS ======= */
@@ -497,6 +499,7 @@ document.getElementById("improveBtn").addEventListener("click", improvePost);
 </script>
 </body>
 </html>
+
 
 
 
