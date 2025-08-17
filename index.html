@@ -507,6 +507,10 @@ async function improvePost() {
   btn.textContent = "Generates suggestions…";
 
   try {
+    // 🔥 חימום השרת (כמו ב-predict)
+    const ok = await wakeApi();
+    if (!ok) throw new Error("API not responding (health).");
+
     const res = await fetch(`${API_BASE}/improve`, {
       method: "POST",
       headers: {"Content-Type":"application/json"},
@@ -519,9 +523,9 @@ async function improvePost() {
       throw new Error(msg);
     }
 
-    document.getElementById("aiTitle").textContent = data.title || "";
+    $("aiTitle").textContent = data.title || "";
 
-    const wrap = document.getElementById("aiSuggestions");
+    const wrap = $("aiSuggestions");
     wrap.innerHTML = "";
     (data.suggestions || []).forEach((s) => {
       const card = document.createElement("div");
@@ -530,22 +534,25 @@ async function improvePost() {
       card.textContent = s;
       wrap.appendChild(card);
     });
-    
-    
-        document.getElementById("aiTags").textContent = (data.hashtags || []).join(" ");
-        document.getElementById("improveArea").style.display = "block";
-      } catch (e) {
-        alert("שגיאה ביצירת ההצעות: " + (e.message || e));
-      } finally {
-        btn.disabled = false;
-        btn.textContent = oldLabel;
-      }
-    }
+
+    $("aiTags").textContent = (data.hashtags || []).join(" ");
+    $("improveArea").style.display = "block";
+    console.log("Improve source:", data.source); // "hf" או "fallback"
+  } catch (e) {
+    alert("שגיאה ביצירת ההצעות: " + (e.message || e));
+  } finally {
+    btn.disabled = false;
+    btn.textContent = oldLabel;
+  }
+}
+
 
 document.getElementById("improveBtn").addEventListener("click", improvePost);
+  
 </script>
 </body>
 </html>
+
 
 
 
