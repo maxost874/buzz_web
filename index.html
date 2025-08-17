@@ -504,7 +504,7 @@ async function improvePost() {
   const btn = $("improveBtn");
   btn.disabled = true;
   const oldLabel = btn.textContent;
-  btn.textContent = "מייצר הצעות…";
+  btn.textContent = "Generates suggestions…";
 
   try {
     const res = await fetch(`${API_BASE}/improve`, {
@@ -546,6 +546,7 @@ document.getElementById("improveBtn").addEventListener("click", improvePost);
 </script>
 </body>
 </html>
+
 
 
 
