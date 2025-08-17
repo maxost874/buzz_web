@@ -22,7 +22,6 @@
   }
 
   /* רקע מסך עם “כרית” */
-  html,body{height:100%}
   body{
     margin:0; padding:28px;
     background: radial-gradient(ellipse at center, var(--bg-outer) 0%, #cde9c7 100%);
@@ -218,6 +217,60 @@
   .progress-fill.high{ background:#9ad29b; }
 
   .pill.sm{ padding:4px 8px; font-weight:800; }
+
+    /* ==== Compact dashboard overrides (fits your current markup) ==== */
+  .grid{ gap:16px; }                                  /* היה 20px */
+  
+  #results .card{ padding:14px; }                     /* היה 18px */
+  #results .kpi-card{ padding:14px; gap:10px; font-size:16px; }  /* היה padding 20px */
+  #results .kpi-row{ column-gap:10px; }
+  
+  #results .metric-card{ min-height:150px; }          /* היה 220px */
+  #results .metric-value{
+    font-size:clamp(22px, 2.6vw, 32px);               /* היה 28–44px */
+    padding:8px 12px;
+    border-width:2px;
+  }
+  
+  #results .card.chart{ min-height:220px; }           /* היה 320px */
+  #results .card.chart canvas{ height:160px !important; } /* היה 260px */
+  
+  #results .progress{ height:8px; }                   /* היה 10px */
+  #results .pill.sm{ padding:3px 6px; }               /* היה 4px 8px */
+  
+  /* רספונסיבי נחמד שלא ישבור במסכים צרים */
+  @media (max-width: 1024px){
+    .grid{ grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (max-width: 640px){
+    .grid{ grid-template-columns: 1fr; }
+  }
+
+  /* ==== Scroll fix: top-align and allow vertical scrolling ==== */
+html, body { height: auto; min-height: 100%; }  /* לא "height:100%" קשיח */
+body{
+  align-items: flex-start;   /* במקום center – ליישר למעלה */
+  min-height: 100vh;         /* לפחות גובה חלון */
+  overflow-y: auto;          /* מוודא שיש גלילה אנכית */
+}
+/* קצת מרווח מלמעלה/למטה שיהיה נעים בגלילה */
+.frame{ margin-top: 12px; margin-bottom: 32px; }
+
+  /* ==== AI section: force left/LTR ==== */
+#improveSection{ direction:ltr; text-align:left; }
+#improveSection h2,
+#improveSection p{ text-align:left; }
+
+/* תיבות התוכן עצמן */
+#aiTitle,
+#aiTags,
+#aiSuggestions,
+#aiSuggestions > div{
+  direction:ltr;
+  text-align:left;
+  unicode-bidi: plaintext;  /* מונע היפוך סימני פיסוק */
+}
+  
 </style>
 </head>
 <body>
@@ -287,18 +340,18 @@
       <section id="improveSection" style="margin-top:24px;padding:16px;border:2px solid #2e5d2e;background:#f3fbf2;border-radius:16px">
         <h2 style="color:#0b6623;margin:0 0 8px">AI – Post upgrade</h2>
         <p style="margin:0 0 12px">Click to get a suggested title, 3 improved versions, and hashtags based on the text above.</p>
-        <button id="improveBtn" style="padding:10px 16px;border-radius:10px;border:1px solid #2e5d2e;background:#2e5ד2e;color:#fff;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.12)">
-           Upgrade my post ✨
+        <button id="improveBtn" style="padding:10px 16px;border-radius:10px;border:1px solid #2e5d2e;background:#2e5d2e;color:#fff;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.12)">
+         ✨  Upgrade my post 
         </button>
       
         <div id="improveArea" style="margin-top:14px;display:none">
-          <h3 style="margin:10px 0 6px">כותרת מוצעת</h3>
+          <h3 style="margin:10px 0 6px">Suggested title</h3>
           <div id="aiTitle" style="background:#fff;border:1px dashed #cfe3cf;padding:8px;border-radius:10px"></div>
       
-          <h3 style="margin:14px 0 6px">נוסחים מוצעים</h3>
+          <h3 style="margin:14px 0 6px">Proposed versions</h3>
           <div id="aiSuggestions"></div>
       
-          <h3 style="margin:14px 0 6px">#האשטגים</h3>
+          <h3 style="margin:14px 0 6px">#hashtags</h3>
           <div id="aiTags" style="background:#fff;border:1px dashed #cfe3cf;padding:8px;border-radius:10px"></div>
         </div>
       </section>
@@ -472,33 +525,28 @@ async function improvePost() {
     wrap.innerHTML = "";
     (data.suggestions || []).forEach((s) => {
       const card = document.createElement("div");
-      card.style.cssText = "border:1px solid #cfe3cf;background:#fff;padding:10px;border-radius:12px;margin-bottom:8px;white-space:pre-wrap";
+      card.style.cssText =
+        "border:1px solid #cfe3cf;background:#fff;padding:12px 14px;border-radius:12px;margin-bottom:10px;white-space:pre-wrap;text-align:left;direction:ltr;unicode-bidi:plaintext";
       card.textContent = s;
-
-      const copy = document.createElement("button");
-      copy.textContent = "העתק ⧉";
-      copy.style.cssText = "margin-top:8px;padding:6px 10px;border-radius:8px;border:1px solid #2e5d2e;background:#f3fbf2;cursor:pointer";
-      copy.onclick = () => navigator.clipboard.writeText(s);
-
-      card.appendChild(document.createElement("br"));
-      card.appendChild(copy);
       wrap.appendChild(card);
     });
-
-    document.getElementById("aiTags").textContent = (data.hashtags || []).join(" ");
-    document.getElementById("improveArea").style.display = "block";
-  } catch (e) {
-    alert("שגיאה ביצירת ההצעות: " + (e.message || e));
-  } finally {
-    btn.disabled = false;
-    btn.textContent = oldLabel;
-  }
-}
+    
+    
+        document.getElementById("aiTags").textContent = (data.hashtags || []).join(" ");
+        document.getElementById("improveArea").style.display = "block";
+      } catch (e) {
+        alert("שגיאה ביצירת ההצעות: " + (e.message || e));
+      } finally {
+        btn.disabled = false;
+        btn.textContent = oldLabel;
+      }
+    }
 
 document.getElementById("improveBtn").addEventListener("click", improvePost);
 </script>
 </body>
 </html>
+
 
 
 
