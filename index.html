@@ -245,28 +245,7 @@
 
       <!-- אזור תוצאות -->
       <div class="grid" id="results" style="display:none; margin-top:14px" aria-live="polite">
-       
-        <!-- ===== AI Post Improver ===== -->
-        <section id="improveSection" style="margin-top:24px;padding:16px;border:2px solid #2e5d2e;background:#f3fbf2;border-radius:16px">
-          <h2 style="color:#0b6623;margin:0 0 8px">AI – שדרוג פוסט</h2>
-          <p style="margin:0 0 12px">לחץ לקבלת כותרת מוצעת, 3 נוסחים משופרים והאשטגים על בסיס הטקסט למעלה.</p>
-          <button id="improveBtn" style="padding:10px 16px;border-radius:10px;border:1px solid #2e5d2e;background:#2e5d2e;color:#fff;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.12)">
-            ✨ שדרג לי את הפוסט
-          </button>
-        
-          <div id="improveArea" style="margin-top:14px;display:none">
-            <h3 style="margin:10px 0 6px">כותרת מוצעת</h3>
-            <div id="aiTitle" style="background:#fff;border:1px dashed #cfe3cf;padding:8px;border-radius:10px"></div>
-        
-            <h3 style="margin:14px 0 6px">נוסחים מוצעים</h3>
-            <div id="aiSuggestions"></div>
-        
-            <h3 style="margin:14px 0 6px">#האשטגים</h3>
-            <div id="aiTags" style="background:#fff;border:1px dashed #cfe3cf;padding:8px;border-radius:10px"></div>
-          </div>
-        </section>
 
-        
       <div class="card kpi-card">
         <div class="kpi-row">
           <div class="kpi-label">Prediction:</div>
@@ -305,6 +284,26 @@
       </div>
     </div>
   </div>
+
+     <!-- ===== AI Post Improver ===== -->
+    <section id="improveSection" style="margin-top:24px;padding:16px;border:2px solid #2e5d2e;background:#f3fbf2;border-radius:16px">
+     <h2 style="color:#0b6623;margin:0 0 8px">AI – שדרוג פוסט</h2>
+     <p style="margin:0 0 12px">לחץ לקבלת כותרת מוצעת, 3 נוסחים משופרים והאשטגים על בסיס הטקסט למעלה.</p>
+       <button id="improveBtn" style="padding:10px 16px;border-radius:10px;border:1px solid #2e5d2e;background:#2e5d2e;color:#fff;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.12)">
+          ✨ שדרג לי את הפוסט
+        </button>
+        
+        <div id="improveArea" style="margin-top:14px;display:none">
+          <h3 style="margin:10px 0 6px">כותרת מוצעת</h3>
+          <div id="aiTitle" style="background:#fff;border:1px dashed #cfe3cf;padding:8px;border-radius:10px"></div>
+        
+          <h3 style="margin:14px 0 6px">נוסחים מוצעים</h3>
+          <div id="aiSuggestions"></div>
+        
+           <h3 style="margin:14px 0 6px">#האשטגים</h3>
+           <div id="aiTags" style="background:#fff;border:1px dashed #cfe3cf;padding:8px;border-radius:10px"></div>
+        </div>
+      </section>
 
 <script>
 /* ======= JS ======= */
@@ -439,17 +438,16 @@ document.getElementById("accValue").textContent = `${(ACC*100).toFixed(0)}%`;
     btn.disabled=false; btn.textContent="Predict";
   }
 }
-$("go").onclick=predict;
 
-  
-  <script>
+$("go").onclick = predict;
+
 // ===== AI Improver =====
 async function improvePost() {
   const txt = $("txt").value.trim();
   if (!txt) { alert("אין טקסט לשדרוג"); return; }
 
   const btn = $("improveBtn");
-  btn.disabled = true; 
+  btn.disabled = true;
   const oldLabel = btn.textContent;
   btn.textContent = "מייצר הצעות…";
 
@@ -466,10 +464,8 @@ async function improvePost() {
       throw new Error(msg);
     }
 
-    // כותרת
     document.getElementById("aiTitle").textContent = data.title || "";
 
-    // נוסחים
     const wrap = document.getElementById("aiSuggestions");
     wrap.innerHTML = "";
     (data.suggestions || []).forEach((s) => {
@@ -487,23 +483,17 @@ async function improvePost() {
       wrap.appendChild(card);
     });
 
-    // האשטגים
     document.getElementById("aiTags").textContent = (data.hashtags || []).join(" ");
-
-    // הצג אזור התוצאות של השדרוג
     document.getElementById("improveArea").style.display = "block";
   } catch (e) {
     alert("שגיאה ביצירת ההצעות: " + (e.message || e));
   } finally {
-    btn.disabled = false; 
+    btn.disabled = false;
     btn.textContent = oldLabel;
   }
 }
 
 document.getElementById("improveBtn").addEventListener("click", improvePost);
-</script>
-
-  
 </script>
 </body>
 </html>
