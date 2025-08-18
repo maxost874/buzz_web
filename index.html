@@ -291,7 +291,6 @@ body{
         <label for="txt" class="post-label">Post Text</label>
         <textarea id="txt" placeholder="Example: This post will explode today!"></textarea>
         <div class="row" style="margin-top:10px">
-          <a class="back-btn" id="back" href="#"><span>Back to Dashboard</span><i class="arrow"></i></a>
           <button id="go">Predict</button>
         </div>
       </div>
@@ -364,7 +363,6 @@ body{
 /* ======= JS ======= */
 let probChart, sentChart;
 const $ = id => document.getElementById(id);
-$("back").href = DASHBOARD_URL;
 
 async function sleep(ms){ return new Promise(r=>setTimeout(r, ms)); }
 async function wakeApi(maxTries=6){
@@ -552,6 +550,7 @@ document.getElementById("improveBtn").addEventListener("click", improvePost);
 </script>
 </body>
 </html>
+
 
 
 
